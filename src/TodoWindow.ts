@@ -8,112 +8,92 @@
  * 5. 事件处理
  */
 
-Ext.define('TodoWindow', {
-    extend: 'Ext.window.Window', // 继承自Window组件
+console.log('Defining TodoWindow component...');
 
-    // 基本配置
+Ext.define('TodoWindow', {
+    extend: 'Ext.window.Window',
+    alias: 'widget.todowindow',
+
+    // Configuration
     title: '编辑任务',
     width: 500,
     height: 400,
-    modal: true, // 模态窗口，阻止对其他组件的操作
+    modal: true,
     layout: 'fit',
+    todoRecord: null,
 
-    // 配置选项，用于接收外部传入的数据
-    config: {
-        todoRecord: null // 当编辑现有任务时，存储任务记录
-    },
-
-    // 组件初始化方法
-    // 在这里创建和配置子组件
-    initComponent: function () {
-        const me = this;
-
-        // 创建表单面板
-        // ExtJS提供了丰富的表单组件，支持各种类型的输入
-        const form = Ext.create('Ext.form.Panel', {
-            bodyPadding: 10,
-            defaultType: 'textfield', // 默认字段类型
-            items: [
-                {
-                    fieldLabel: '标题',
-                    name: 'title',
-                    allowBlank: false, // 必填字段
-                    width: '100%'
-                },
-                {
-                    xtype: 'textareafield', // 多行文本输入
-                    fieldLabel: '描述',
-                    name: 'description',
-                    width: '100%',
-                    height: 100
-                },
-                {
-                    xtype: 'combobox', // 下拉选择框
-                    fieldLabel: '状态',
-                    name: 'status',
-                    store: ['待开始', '进行中', '已完成'], // 简单的数组数据源
-                    editable: false,
-                    width: '100%'
-                },
-                {
-                    xtype: 'datefield', // 日期选择器
-                    fieldLabel: '截止日期',
-                    name: 'dueDate',
-                    format: 'Y-m-d',
-                    width: '100%'
-                }
-            ]
-        });
-
-        // 如果是编辑模式，加载现有数据到表单
-        if (me.todoRecord) {
-            form.loadRecord(me.todoRecord);
-        }
-
-        // 配置底部按钮
-        // 展示了如何处理用户交互和数据保存
-        const buttons = [
+    // 定义默认配置
+    items: [{
+        xtype: 'form',
+        bodyPadding: 10,
+        defaultType: 'textfield',
+        items: [
             {
-                text: '保存',
-                handler: function () {
-                    const form = this.up('window').down('form');
-                    if (form.isValid()) { // 表单验证
-                        const values = form.getValues();
-                        if (me.todoRecord) {
-                            // 更新现有记录
-                            // ExtJS的数据绑定系统会自动更新UI
-                            me.todoRecord.set(values);
-                        } else {
-                            // 创建新记录
-                            // 通过Store管理数据的添加
-                            const store = Ext.getStore('todoStore');
-                            const newId = store.getCount() + 1;
-                            store.add({
-                                id: newId,
-                                ...values
-                            });
-                        }
-                        me.close(); // 关闭窗口
-                    }
-                }
+                fieldLabel: '标题',
+                name: 'title',
+                allowBlank: false,
+                width: '100%'
             },
             {
-                text: '取消',
-                handler: function () {
-                    this.up('window').close();
-                }
+                xtype: 'textareafield',
+                fieldLabel: '描述',
+                name: 'description',
+                width: '100%',
+                height: 100
+            },
+            {
+                xtype: 'combobox',
+                fieldLabel: '状态',
+                name: 'status',
+                store: ['待开始', '进行中', '已完成'],
+                editable: false,
+                width: '100%'
+            },
+            {
+                xtype: 'datefield',
+                fieldLabel: '截止日期',
+                name: 'dueDate',
+                format: 'Y-m-d',
+                width: '100%'
             }
-        ];
+        ]
+    }],
 
-        // 使用Ext.apply合并配置
-        // 这是ExtJS推荐的配置合并方式
-        Ext.apply(me, {
-            items: form,
-            buttons: buttons
-        });
+    buttons: [{
+        text: '保存',
+        handler: function () {
+            const win = this.up('window');
+            const form = win.down('form');
+            if (form.isValid()) {
+                const values = form.getValues();
+                if (win.todoRecord) {
+                    win.todoRecord.set(values);
+                } else {
+                    const store = Ext.getStore('todoStore');
+                    const newId = store.getCount() + 1;
+                    store.add({
+                        id: newId,
+                        ...values
+                    });
+                }
+                win.close();
+            }
+        }
+    }, {
+        text: '取消',
+        handler: function () {
+            this.up('window').close();
+        }
+    }],
 
-        // 调用父类的初始化方法
-        // 确保继承的功能正常工作
-        me.callParent();
+    // 初始化方法
+    initComponent: function () {
+        const me = this;
+        me.callParent(arguments);
+
+        // 如果是编辑模式，加载数据
+        if (me.todoRecord) {
+            me.down('form').loadRecord(me.todoRecord);
+        }
     }
 }); 

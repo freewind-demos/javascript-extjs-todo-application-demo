@@ -1,3 +1,5 @@
+import './TodoWindow';
+
 /**
  * 这个demo展示了ExtJS的核心特性：
  * 1. 组件化开发
@@ -35,6 +37,9 @@ Ext.create('Ext.data.Store', {
 // 创建主应用界面
 // ExtJS的组件系统支持声明式配置，使用xtype指定组件类型
 Ext.onReady(() => {
+    console.log('Application initializing...');
+    console.log('Checking if TodoWindow is defined:', Ext.ClassManager.get('TodoWindow'));
+
     new Ext.container.Viewport({
         layout: 'border', // 使用border布局进行整体布局
         items: [
@@ -118,10 +123,19 @@ Ext.onReady(() => {
                             text: '新建任务',
                             iconCls: 'x-fa fa-plus',
                             handler: function () {
-                                // 创建并显示任务编辑窗口
-                                Ext.create('TodoWindow', {
-                                    title: '新建任务'
-                                }).show();
+                                console.log('New task button clicked');
+                                try {
+                                    console.log('Creating TodoWindow...');
+                                    const win = new Ext.window.Window({
+                                        xtype: 'todowindow',
+                                        title: '新建任务'
+                                    });
+                                    console.log('TodoWindow created:', win);
+                                    win.show();
+                                    console.log('TodoWindow shown');
+                                } catch (error) {
+                                    console.error('Error creating TodoWindow:', error);
+                                }
                             }
                         },
                         {
@@ -165,4 +179,6 @@ Ext.onReady(() => {
             }
         ]
     });
+
+    console.log('Application initialized');
 });

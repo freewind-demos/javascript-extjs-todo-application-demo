@@ -7,7 +7,7 @@
   },
   "devDependencies": {
     "@types/node": "16.11.0",
-    "@types/extjs-6": "6.2.0.git",
+    "@types/extjs-6": "github:freewind/extjs-typings-6.2.0#main",
     "typescript": "5.3.3",
     "vite": "4.0.1"
   }

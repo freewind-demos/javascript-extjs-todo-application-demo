@@ -8,8 +8,6 @@
  * 5. 事件处理
  */
 
-console.log('Defining TodoWindow component...');
-
 Ext.define('TodoWindow', {
     extend: 'Ext.window.Window',
     alias: 'widget.todowindow',
@@ -62,15 +60,15 @@ Ext.define('TodoWindow', {
     buttons: [{
         text: '保存',
         handler: function () {
-            const win = this.up('window');
-            const form = win.down('form');
+            var win = this.up('window');
+            var form = win.down('form');
             if (form.isValid()) {
-                const values = form.getValues();
+                var values = form.getValues();
                 if (win.todoRecord) {
                     win.todoRecord.set(values);
                 } else {
-                    const store = Ext.getStore('todoStore');
-                    const newId = store.getCount() + 1;
+                    var store = Ext.getStore('todoStore');
+                    var newId = (store.getCount() || 0) + 1;
                     store.add({
                         id: newId,
                         ...values
@@ -88,7 +86,7 @@ Ext.define('TodoWindow', {
 
     // 初始化方法
     initComponent: function () {
-        const me = this;
+        var me = this;
         me.callParent(arguments);
 
         // 如果是编辑模式，加载数据

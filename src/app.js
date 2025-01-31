@@ -99,7 +99,7 @@ Ext.onReady(function () {
             xtype: 'toolbar',
             items: [{
                 text: '添加Todo',
-                iconCls: 'x-tool-plus',
+                iconCls: 'fa fa-plus',
                 handler: function () {
                     todoWindow.show();
                 }
@@ -165,7 +165,7 @@ Ext.onReady(function () {
                 width: 100,
                 text: '操作',
                 items: [{
-                    iconCls: 'x-tool-gear',
+                    iconCls: 'x-fa fa-edit',
                     tooltip: '编辑',
                     handler: function (grid, rowIndex) {
                         var record = grid.getStore().getAt(rowIndex);
@@ -175,7 +175,7 @@ Ext.onReady(function () {
                         todoWindow.show();
                     }
                 }, {
-                    iconCls: 'x-tool-close',
+                    iconCls: 'x-fa fa-trash',
                     tooltip: '删除',
                     handler: function (grid, rowIndex) {
                         Ext.Msg.confirm('确认', '确定要删除这条Todo吗?', function (btn) {

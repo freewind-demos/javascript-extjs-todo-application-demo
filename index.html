@@ -2,15 +2,42 @@
 <html>
 
 <head>
-    <title>ExtJS Todo Demo</title>
+    <title>ExtJS TODO Demo</title>
+    <!-- ExtJS Theme -->
     <link
         href="https://cdnjs.cloudflare.com/ajax/libs/extjs/6.2.0/classic/theme-classic/resources/theme-classic-all.css"
         rel="stylesheet">
+    <!-- ExtJS Core -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/extjs/6.2.0/ext-all-debug.js"></script>
+    <!-- ExtJS Charts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/extjs/6.2.0/packages/charts/classic/charts-all.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/extjs/6.2.0/packages/charts/classic/charts-debug.js"></script>
+    <!-- Custom Styles -->
+    <style>
+        .demo-source-tabs {
+            margin-top: 10px;
+        }
+
+        .demo-description {
+            padding: 10px;
+            background-color: #f5f5f5;
+            border: 1px solid #ddd;
+            margin-bottom: 10px;
+        }
+
+        .demo-description ul {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+
+        .demo-description li {
+            margin: 5px 0;
+        }
+    </style>
 </head>
 
 <body>
-    <script type="text/javascript" src="src/TodoWindow.js"></script>
+    <!-- App Entry Point -->
     <script type="text/javascript" src="src/app.js"></script>
 </body>
 

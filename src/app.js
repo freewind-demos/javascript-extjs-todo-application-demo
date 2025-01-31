@@ -23,127 +23,169 @@ Ext.create('Ext.data.Store', {
 
 // 创建主应用界面
 Ext.onReady(function () {
-    new Ext.container.Viewport({
-        layout: 'border',
-        items: [
-            // 顶部标题栏
-            {
-                region: 'north',
-                xtype: 'panel',
-                height: 50,
-                bodyStyle: 'background-color: #1a73e8; color: white; font-size: 20px; padding: 10px;',
-                html: '待办事项管理'
-            },
-            // 左侧导航栏
-            {
-                region: 'west',
-                xtype: 'panel',
-                width: 200,
-                split: true,
-                collapsible: true,
-                title: '导航',
-                layout: 'fit',
-                items: [{
-                    xtype: 'treepanel',
-                    root: {
-                        expanded: true,
-                        children: [
-                            { text: '所有任务', leaf: true, id: 'all' },
-                            { text: '进行中', leaf: true, id: 'inProgress' },
-                            { text: '已完成', leaf: true, id: 'completed' }
-                        ]
-                    },
-                    listeners: {
-                        itemclick: function (view, record) {
-                            var store = Ext.getStore('todoStore');
-                            store.clearFilter();
+    // 创建添加/编辑Todo的Window
+    var todoWindow = Ext.create('Ext.window.Window', {
+        title: '添加Todo',
+        width: 400,
+        modal: true,
+        layout: 'fit',
+        closeAction: 'hide',
+        items: [{
+            xtype: 'form',
+            bodyPadding: 10,
+            items: [{
+                xtype: 'textfield',
+                name: 'title',
+                fieldLabel: '标题',
+                allowBlank: false
+            }, {
+                xtype: 'textareafield',
+                name: 'description',
+                fieldLabel: '描述',
+                height: 100
+            }, {
+                xtype: 'combobox',
+                name: 'status',
+                fieldLabel: '状态',
+                store: ['待开始', '进行中', '已完成'],
+                value: '待开始',
+                editable: false
+            }, {
+                xtype: 'datefield',
+                name: 'dueDate',
+                fieldLabel: '截止日期',
+                format: 'Y-m-d',
+                value: new Date()
+            }],
+            buttons: [{
+                text: '保存',
+                handler: function () {
+                    var form = this.up('form');
+                    if (form.isValid()) {
+                        var values = form.getValues();
+                        var store = Ext.getStore('todoStore');
 
-                            if (record.get('id') !== 'all') {
-                                store.filterBy(function (rec) {
-                                    var status = rec.get('status');
-                                    if (record.get('id') === 'inProgress') {
-                                        return status === '进行中';
-                                    } else if (record.get('id') === 'completed') {
-                                        return status === '已完成';
-                                    }
-                                    return true;
-                                });
-                            }
+                        if (form.editingRecord) {
+                            // 编辑模式
+                            form.editingRecord.set(values);
+                        } else {
+                            // 添加模式
+                            values.id = store.getCount() + 1;
+                            store.add(values);
+                        }
+
+                        todoWindow.hide();
+                        form.reset();
+                        form.editingRecord = null;
+                    }
+                }
+            }, {
+                text: '取消',
+                handler: function () {
+                    var form = this.up('form');
+                    form.reset();
+                    form.editingRecord = null;
+                    todoWindow.hide();
+                }
+            }]
+        }]
+    });
+
+    // 创建主界面
+    Ext.create('Ext.container.Viewport', {
+        layout: 'border',
+        items: [{
+            region: 'north',
+            xtype: 'toolbar',
+            items: [{
+                text: '添加Todo',
+                iconCls: 'x-tool-plus',
+                handler: function () {
+                    todoWindow.show();
+                }
+            }, '-', {
+                xtype: 'combobox',
+                fieldLabel: '状态筛选',
+                store: ['全部', '待开始', '进行中', '已完成'],
+                value: '全部',
+                labelWidth: 60,
+                width: 160,
+                editable: false,
+                listeners: {
+                    select: function (combo, record) {
+                        var store = Ext.getStore('todoStore');
+                        if (record.get('field1') === '全部') {
+                            store.clearFilter();
+                        } else {
+                            store.filterBy(function (record) {
+                                return record.get('status') === combo.getValue();
+                            });
                         }
                     }
-                }]
-            },
-            // 主内容区域
-            {
-                region: 'center',
-                xtype: 'panel',
-                layout: 'fit',
+                }
+            }]
+        }, {
+            region: 'center',
+            xtype: 'grid',
+            store: 'todoStore',
+            columns: [{
+                text: '标题',
+                dataIndex: 'title',
+                flex: 1
+            }, {
+                text: '描述',
+                dataIndex: 'description',
+                flex: 2
+            }, {
+                text: '状态',
+                dataIndex: 'status',
+                width: 100,
+                renderer: function (value) {
+                    var color;
+                    switch (value) {
+                        case '待开始':
+                            color = 'gray';
+                            break;
+                        case '进行中':
+                            color = 'blue';
+                            break;
+                        case '已完成':
+                            color = 'green';
+                            break;
+                    }
+                    return '<span style="color:' + color + '">' + value + '</span>';
+                }
+            }, {
+                text: '截止日期',
+                dataIndex: 'dueDate',
+                width: 120,
+                renderer: Ext.util.Format.dateRenderer('Y-m-d')
+            }, {
+                xtype: 'actioncolumn',
+                width: 100,
+                text: '操作',
                 items: [{
-                    xtype: 'grid',
-                    store: Ext.getStore('todoStore'),
-                    selModel: {
-                        type: 'rowmodel',
-                        mode: 'SINGLE'
-                    },
-                    columns: [
-                        { text: 'ID', dataIndex: 'id', width: 50 },
-                        { text: '标题', dataIndex: 'title', flex: 1 },
-                        { text: '描述', dataIndex: 'description', flex: 2 },
-                        { text: '状态', dataIndex: 'status', width: 100 },
-                        {
-                            text: '截止日期',
-                            dataIndex: 'dueDate',
-                            width: 120,
-                            renderer: Ext.util.Format.dateRenderer('Y-m-d')
-                        }
-                    ],
-                    tbar: [
-                        {
-                            text: '新建任务',
-                            iconCls: 'x-fa fa-plus',
-                            handler: function () {
-                                Ext.create('TodoWindow', {
-                                    title: '新建任务'
-                                }).show();
+                    iconCls: 'x-tool-gear',
+                    tooltip: '编辑',
+                    handler: function (grid, rowIndex) {
+                        var record = grid.getStore().getAt(rowIndex);
+                        var form = todoWindow.down('form');
+                        form.loadRecord(record);
+                        form.editingRecord = record;
+                        todoWindow.show();
+                    }
+                }, {
+                    iconCls: 'x-tool-close',
+                    tooltip: '删除',
+                    handler: function (grid, rowIndex) {
+                        Ext.Msg.confirm('确认', '确定要删除这条Todo吗?', function (btn) {
+                            if (btn === 'yes') {
+                                grid.getStore().removeAt(rowIndex);
                             }
-                        },
-                        {
-                            text: '编辑任务',
-                            iconCls: 'x-fa fa-edit',
-                            handler: function () {
-                                var grid = this.up('grid');
-                                var selected = grid.getSelection()[0];
-                                if (selected) {
-                                    Ext.create('TodoWindow', {
-                                        title: '编辑任务',
-                                        todoRecord: selected
-                                    }).show();
-                                } else {
-                                    Ext.Msg.alert('提示', '请先选择一个任务');
-                                }
-                            }
-                        },
-                        {
-                            text: '删除任务',
-                            iconCls: 'x-fa fa-trash',
-                            handler: function () {
-                                var grid = this.up('grid');
-                                var selected = grid.getSelection()[0];
-                                if (selected) {
-                                    Ext.Msg.confirm('确认', '确定要删除这个任务吗？', function (btn) {
-                                        if (btn === 'yes') {
-                                            var store = Ext.getStore('todoStore');
-                                            store.remove(selected);
-                                        }
-                                    });
-                                } else {
-                                    Ext.Msg.alert('提示', '请先选择一个任务');
-                                }
-                            }
-                        }
-                    ]
+                        });
+                    }
                 }]
-            }
-        ]
+            }]
+        }]
     });
 }); 

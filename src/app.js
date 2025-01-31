@@ -129,6 +129,30 @@ Ext.onReady(function () {
             xtype: 'grid',
             store: 'todoStore',
             columns: [{
+                xtype: 'actioncolumn',
+                width: 50,
+                align: 'center',
+                text: '完成',
+                items: [{
+                    getClass: function (value, meta, record) {
+                        if (record.get('status') === '已完成') {
+                            meta.tdCls = 'task-completed';
+                            return 'fa fa-check-circle';
+                        } else {
+                            meta.tdCls = 'task-pending';
+                            return 'fa fa-circle-o';
+                        }
+                    },
+                    getTip: function (value, meta, record) {
+                        return record.get('status') === '已完成' ? '点击取消完成' : '点击标记完成';
+                    },
+                    handler: function (grid, rowIndex) {
+                        var record = grid.getStore().getAt(rowIndex);
+                        var newStatus = record.get('status') === '已完成' ? '进行中' : '已完成';
+                        record.set('status', newStatus);
+                    }
+                }]
+            }, {
                 text: '标题',
                 dataIndex: 'title',
                 flex: 1
@@ -162,10 +186,10 @@ Ext.onReady(function () {
                 renderer: Ext.util.Format.dateRenderer('Y-m-d')
             }, {
                 xtype: 'actioncolumn',
-                width: 100,
+                width: 80,
                 text: '操作',
                 items: [{
-                    iconCls: 'x-fa fa-edit',
+                    iconCls: 'fa fa-edit',
                     tooltip: '编辑',
                     handler: function (grid, rowIndex) {
                         var record = grid.getStore().getAt(rowIndex);
@@ -175,7 +199,7 @@ Ext.onReady(function () {
                         todoWindow.show();
                     }
                 }, {
-                    iconCls: 'x-fa fa-trash',
+                    iconCls: 'fa fa-trash',
                     tooltip: '删除',
                     handler: function (grid, rowIndex) {
                         Ext.Msg.confirm('确认', '确定要删除这条Todo吗?', function (btn) {

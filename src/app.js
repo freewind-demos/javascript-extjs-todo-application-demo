@@ -139,7 +139,6 @@ Ext.onReady(function () {
                     iconCls: 'fa fa-trash',
                     tooltip: '删除',
                     handler: function (grid, rowIndex) {
-                        var record = grid.getStore().getAt(rowIndex);
                         Ext.Msg.confirm('确认', '确定要删除这条Todo吗?', function (btn) {
                             if (btn === 'yes') {
                                 grid.getStore().removeAt(rowIndex);

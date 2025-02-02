@@ -79,10 +79,11 @@ Ext.define('TodoWindow', {
     buttons: [{
         text: '保存',
         handler: function () {
-            var win = this.up('window');
             var form = win.down('form');
             if (form.isValid()) {
                 var values = form.getValues();
+
+                var win = this.up('window');
                 if (win.getTodoRecord()) {
                     win.getTodoRecord().set(values);
                 } else {
@@ -104,19 +105,10 @@ Ext.define('TodoWindow', {
         }
     }],
 
-    // 初始化方法
+    // 初始化方法。如果我们没有特殊逻辑，可以不用写。Ext会自动调用
     initComponent: function () {
+        console.log('### TodoWindow initComponent', arguments);
         var me = this;
         me.callParent(arguments);
-
-        // 监听show事件，确保表单状态正确
-        me.on('show', function () {
-            var form = me.down('form');
-            if (me.getTodoRecord()) {
-                form.loadRecord(me.getTodoRecord());
-            } else {
-                form.reset();
-            }
-        });
     }
 }); 

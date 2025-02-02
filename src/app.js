@@ -24,71 +24,8 @@ Ext.create('Ext.data.Store', {
 // 创建主应用界面
 Ext.onReady(function () {
     // 创建添加/编辑Todo的Window
-    var todoWindow = Ext.create('Ext.window.Window', {
-        title: '添加Todo',
-        width: 400,
-        modal: true,
-        layout: 'fit',
-        closeAction: 'hide',
-        items: [{
-            xtype: 'form',
-            bodyPadding: 10,
-            items: [{
-                xtype: 'textfield',
-                name: 'title',
-                fieldLabel: '标题',
-                allowBlank: false
-            }, {
-                xtype: 'textareafield',
-                name: 'description',
-                fieldLabel: '描述',
-                height: 100
-            }, {
-                xtype: 'combobox',
-                name: 'status',
-                fieldLabel: '状态',
-                store: ['待开始', '进行中', '已完成'],
-                value: '待开始',
-                editable: false
-            }, {
-                xtype: 'datefield',
-                name: 'dueDate',
-                fieldLabel: '截止日期',
-                format: 'Y-m-d',
-                value: new Date()
-            }],
-            buttons: [{
-                text: '保存',
-                handler: function () {
-                    var form = this.up('form');
-                    if (form.isValid()) {
-                        var values = form.getValues();
-                        var store = Ext.getStore('todoStore');
-
-                        if (form.editingRecord) {
-                            // 编辑模式
-                            form.editingRecord.set(values);
-                        } else {
-                            // 添加模式
-                            values.id = store.getCount() + 1;
-                            store.add(values);
-                        }
-
-                        todoWindow.hide();
-                        form.reset();
-                        form.editingRecord = null;
-                    }
-                }
-            }, {
-                text: '取消',
-                handler: function () {
-                    var form = this.up('form');
-                    form.reset();
-                    form.editingRecord = null;
-                    todoWindow.hide();
-                }
-            }]
-        }]
+    var todoWindow = Ext.create('TodoWindow', {
+        closeAction: 'hide'
     });
 
     // 创建主界面
@@ -101,6 +38,7 @@ Ext.onReady(function () {
                 text: '添加Todo',
                 iconCls: 'fa fa-plus',
                 handler: function () {
+                    todoWindow.setTodoRecord(null);
                     todoWindow.show();
                 }
             }, '-', {
@@ -193,9 +131,7 @@ Ext.onReady(function () {
                     tooltip: '编辑',
                     handler: function (grid, rowIndex) {
                         var record = grid.getStore().getAt(rowIndex);
-                        var form = todoWindow.down('form');
-                        form.loadRecord(record);
-                        form.editingRecord = record;
+                        todoWindow.setTodoRecord(record);
                         todoWindow.show();
                     }
                 }, {

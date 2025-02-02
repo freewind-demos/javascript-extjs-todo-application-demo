@@ -27,11 +27,32 @@
         .x-action-col-icon:hover {
             color: #157fcc;
         }
+
+        /* 任务完成状态的图标样式 */
+        .task-completed .x-action-col-icon {
+            color: #4caf50 !important;
+            /* 绿色 */
+            font-size: 18px !important;
+        }
+
+        /* 任务未完成状态的图标样式 */
+        .task-pending .x-action-col-icon {
+            color: #9e9e9e !important;
+            /* 灰色 */
+            font-size: 18px !important;
+        }
+
+        /* 任务完成时的标题样式 */
+        .x-grid-row-selected .task-completed .x-action-col-icon {
+            color: #81c784 !important;
+            /* 选中时的颜色 */
+        }
     </style>
 </head>
 
 <body>
     <!-- App Entry Point -->
+    <script type="text/javascript" src="src/TodoWindow.js"></script>
     <script type="text/javascript" src="src/app.js"></script>
 </body>
 

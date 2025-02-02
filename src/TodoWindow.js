@@ -18,7 +18,26 @@ Ext.define('TodoWindow', {
     height: 400,
     modal: true,
     layout: 'fit',
-    todoRecord: null,
+    _todoRecord: null,
+
+    // Getter and Setter for todoRecord
+    getTodoRecord: function () {
+        return this._todoRecord;
+    },
+
+    setTodoRecord: function (record) {
+        this._todoRecord = record;
+        var form = this.down('form');
+        if (form) {
+            if (record) {
+                form.loadRecord(record);
+            } else {
+                form.reset();
+                // 设置默认状态
+                form.down('[name=status]').setValue('待开始');
+            }
+        }
+    },
 
     // 定义默认配置
     items: [{
@@ -44,6 +63,7 @@ Ext.define('TodoWindow', {
                 fieldLabel: '状态',
                 name: 'status',
                 store: ['待开始', '进行中', '已完成'],
+                value: '待开始',
                 editable: false,
                 width: '100%'
             },
@@ -64,8 +84,8 @@ Ext.define('TodoWindow', {
             var form = win.down('form');
             if (form.isValid()) {
                 var values = form.getValues();
-                if (win.todoRecord) {
-                    win.todoRecord.set(values);
+                if (win.getTodoRecord()) {
+                    win.getTodoRecord().set(values);
                 } else {
                     var store = Ext.getStore('todoStore');
                     var newId = (store.getCount() || 0) + 1;
@@ -89,9 +109,14 @@ Ext.define('TodoWindow', {
         var me = this;
         me.callParent(arguments);
 
-        // 如果是编辑模式，加载数据
-        if (me.todoRecord) {
-            me.down('form').loadRecord(me.todoRecord);
-        }
+        // 监听show事件，确保表单状态正确
+        me.on('show', function () {
+            var form = me.down('form');
+            if (me.getTodoRecord()) {
+                form.loadRecord(me.getTodoRecord());
+            } else {
+                form.reset();
+            }
+        });
     }
 }); 

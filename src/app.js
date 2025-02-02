@@ -11,12 +11,12 @@ Ext.define('Todo', {
 });
 
 // 创建并注册全局Store
-Ext.create('Ext.data.Store', {
+var todoStore = Ext.create('Ext.data.Store', {
     storeId: 'todoStore',
     model: 'Todo',
     data: [
         { id: 1, title: '完成ExtJS Demo', description: '创建一个展示ExtJS特性的Demo', status: '进行中', dueDate: new Date() },
-        { id: 2, title: '学习TypeScript', description: '深入学习TypeScript的高级特性', status: '待开始', dueDate: new Date(2024, 1, 15) },
+        { id: 2, title: '学习TypeScript', description: '深入学习TypeScript的高级特性', status: '进行中', dueDate: new Date(2024, 1, 15) },
         { id: 3, title: '准备会议', description: '准备下周的技术分享会议', status: '已完成', dueDate: new Date(2024, 1, 10) }
     ]
 });
@@ -44,7 +44,7 @@ Ext.onReady(function () {
             }, '-', {
                 xtype: 'combobox',
                 fieldLabel: '状态筛选',
-                store: ['全部', '待开始', '进行中', '已完成'],
+                store: ['全部', '进行中', '已完成'],
                 value: '全部',
                 labelWidth: 60,
                 width: 160,
@@ -85,9 +85,13 @@ Ext.onReady(function () {
                         return record.get('status') === '已完成' ? '点击取消完成' : '点击标记完成';
                     },
                     handler: function (grid, rowIndex) {
-                        var record = grid.getStore().getAt(rowIndex);
-                        var newStatus = record.get('status') === '已完成' ? '进行中' : '已完成';
+                        var view = this.up('grid');
+                        var record = view.getStore().getAt(rowIndex);
+                        var oldStatus = record.get('status');
+                        var newStatus = oldStatus === '已完成' ? '进行中' : '已完成';
                         record.set('status', newStatus);
+                        // 刷新整行
+                        view.getView().refreshNode(record);
                     }
                 }]
             }, {
@@ -105,9 +109,6 @@ Ext.onReady(function () {
                 renderer: function (value) {
                     var color;
                     switch (value) {
-                        case '待开始':
-                            color = 'gray';
-                            break;
                         case '进行中':
                             color = 'blue';
                             break;
@@ -138,6 +139,7 @@ Ext.onReady(function () {
                     iconCls: 'fa fa-trash',
                     tooltip: '删除',
                     handler: function (grid, rowIndex) {
+                        var record = grid.getStore().getAt(rowIndex);
                         Ext.Msg.confirm('确认', '确定要删除这条Todo吗?', function (btn) {
                             if (btn === 'yes') {
                                 grid.getStore().removeAt(rowIndex);

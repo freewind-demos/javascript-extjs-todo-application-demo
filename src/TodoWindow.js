@@ -33,8 +33,7 @@ Ext.define('TodoWindow', {
                 form.loadRecord(record);
             } else {
                 form.reset();
-                // 设置默认状态
-                form.down('[name=status]').setValue('待开始');
+                form.down('[name=status]').setValue('进行中');
             }
         }
     },
@@ -62,8 +61,8 @@ Ext.define('TodoWindow', {
                 xtype: 'combobox',
                 fieldLabel: '状态',
                 name: 'status',
-                store: ['待开始', '进行中', '已完成'],
-                value: '待开始',
+                store: ['进行中', '已完成'],
+                value: '进行中',
                 editable: false,
                 width: '100%'
             },
@@ -89,10 +88,11 @@ Ext.define('TodoWindow', {
                 } else {
                     var store = Ext.getStore('todoStore');
                     var newId = (store.getCount() || 0) + 1;
-                    store.add({
+                    var newRecord = {
                         id: newId,
                         ...values
-                    });
+                    };
+                    store.add(newRecord);
                 }
                 win.close();
             }
